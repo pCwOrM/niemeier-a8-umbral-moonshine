@@ -5,6 +5,11 @@
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 [![Lean 4 Verified](https://img.shields.io/badge/Lean%204-Certified%200%20Sorry-brightgreen.svg)](https://leanprover.github.io/)
 [![Python Oracle](https://img.shields.io/badge/Python%20Oracle-100%25%20PASS-brightgreen.svg)](https://github.com/pCwOrM/niemeier-a8-umbral-moonshine/blob/main/k3_umbral_niemeier_oracle.py)
+[![Sister Repo: GDT Lean4](https://img.shields.io/badge/Sister%20Repo-GDT%20Lean4-024dad.svg)](https://github.com/pCwOrM/general-divisor-theorem)
+[![Sister Repo: WERR Core Monorepo](https://img.shields.io/badge/Sister%20Repo-WERR%20Core%20Monorepo-8b5cf6.svg)](https://github.com/pCwOrM/mandelbrot-fractal-neural-synthesis)
+[![Sister Repo: Schönhage Record](https://img.shields.io/badge/Sister%20Repo-Sch%C3%B6nhage%20Record-brightgreen.svg)](https://github.com/pCwOrM/integer-mult-bounds)
+[![Sister Repo: WerrSoma Connectome](https://img.shields.io/badge/Sister%20Repo-WerrSoma%20Connectome-00f0ff.svg)](https://github.com/Lexovian/WerrSoma)
+[![Sister Repo: WerreduR](https://img.shields.io/badge/Sister%20Repo-WerreduR%20v4.0-059669.svg)](https://github.com/jesmaat/WerreduR)
 
 ---
 
@@ -103,3 +108,15 @@ Expected output:
 * **Zerrin Dağlı** — Mersin University & Yusuf Kalkavan Anatolian High School (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
 * **Dağhan Dağlı** — Toros Science High School, MEV (Toros University) (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
 * **Bekirhan Dağlı** (Infrastructure Contributor) — Managing Partner, ITouch Systems Infrastructure & Discrete Systems
+
+---
+
+## 🏛️ Companion Open-Science Formal Architecture
+
+This work is anchored within the broader open-science research portfolio developed by ITouch Systems Research Labs:
+* **General Divisor Theorem (GDT) Lean 4:** [Zenodo: 10.5281/zenodo.23316070](https://doi.org/10.5281/zenodo.23316070) • [GitHub: `pCwOrM/general-divisor-theorem`](https://github.com/pCwOrM/general-divisor-theorem)
+* **Schönhage Tensor Carrier Compression (World Record):** [Zenodo: 10.5281/zenodo.23268580](https://doi.org/10.5281/zenodo.23268580) • [GitHub: `pCwOrM/integer-mult-bounds`](https://github.com/pCwOrM/integer-mult-bounds)
+* **WERR Core Monorepo:** [Zenodo: 10.5281/zenodo.22774934](https://doi.org/10.5281/zenodo.22774934) • [GitHub: `pCwOrM/mandelbrot-fractal-neural-synthesis`](https://github.com/pCwOrM/mandelbrot-fractal-neural-synthesis)
+* **WerrSoma Whole-Brain Drosophila Connectome (158K Neurons):** [Zenodo: 10.5281/zenodo.23072929](https://doi.org/10.5281/zenodo.23072929) • [GitHub: `Lexovian/WerrSoma`](https://github.com/Lexovian/WerrSoma)
+* **WerreduR Procedural Fractal Pedagogy (v4.0):** [Zenodo: 10.5281/zenodo.23128224](https://doi.org/10.5281/zenodo.23128224) • [GitHub: `jesmaat/WerreduR`](https://github.com/jesmaat/WerreduR)
+
