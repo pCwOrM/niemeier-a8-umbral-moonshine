@@ -2,10 +2,10 @@
 
 [![Zenodo Record](https://img.shields.io/badge/Zenodo-Record%2023324067-024dad.svg)](https://zenodo.org/records/23324067)
 [![Concept DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23324066-024dad.svg)](https://doi.org/10.5281/zenodo.23324066)
-[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
+[![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
 [![Lean 4 Verified](https://img.shields.io/badge/Lean%204-Certified%200%20Sorry-brightgreen.svg)](https://leanprover.github.io/)
 [![Python Oracle](https://img.shields.io/badge/Python%20Oracle-100%25%20PASS-brightgreen.svg)](https://github.com/pCwOrM/niemeier-a8-umbral-moonshine/blob/main/k3_umbral_niemeier_oracle.py)
-[![Sister Repo: GDT Lean4](https://img.shields.io/badge/Sister%20Repo-GDT%20Lean4-024dad.svg)](https://github.com/pCwOrM/general-divisor-theorem)
+[![Sister Repo: GDT Lean4](https://img.shields.io/badge/Sister%20Repo-GDT%20Lean4%20(39%20Theorems%20%7C%200%20Sorry)-024dad.svg)](https://github.com/pCwOrM/general-divisor-theorem)
 [![Sister Repo: WERR Core Monorepo](https://img.shields.io/badge/Sister%20Repo-WERR%20Core%20Monorepo-8b5cf6.svg)](https://github.com/pCwOrM/mandelbrot-fractal-neural-synthesis)
 [![Sister Repo: Schönhage Record](https://img.shields.io/badge/Sister%20Repo-Sch%C3%B6nhage%20Record-brightgreen.svg)](https://github.com/pCwOrM/integer-mult-bounds)
 [![arXiv:2610.14263](https://img.shields.io/badge/arXiv-2610.14263%20%5Bcs.CC%5D-b31b1b.svg)](https://arxiv.org/abs/2610.14263)
@@ -125,3 +125,9 @@ This work is anchored within the broader open-science research portfolio develop
 * **WerrSoma Whole-Brain Drosophila Connectome (158K Neurons):** [Zenodo: 10.5281/zenodo.23072929](https://doi.org/10.5281/zenodo.23072929) • [GitHub: `Lexovian/WerrSoma`](https://github.com/Lexovian/WerrSoma)
 * **WerreduR Procedural Fractal Pedagogy (v4.0):** [Zenodo: 10.5281/zenodo.23128224](https://doi.org/10.5281/zenodo.23128224) • [GitHub: `jesmaat/WerreduR`](https://github.com/jesmaat/WerreduR)
 
+
+---
+
+## ⚖️ License & Mathematical Community Compatibility
+
+To ensure full compatibility with the **Lean 4 / Mathlib4** mathematical formalization ecosystem, all formal mathematical proofs and verification scripts in this repository are licensed under the **[Apache License, Version 2.0](LICENSE)** (Copyright © 2026 Volkan Dağlı, Zerrin Dağlı, Dağhan Dağlı & ITouch Bilişim Sistemleri Ltd. Şti.).
