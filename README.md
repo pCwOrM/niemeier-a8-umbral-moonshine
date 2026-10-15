@@ -14,6 +14,7 @@
 [![CrocSwap Contributors: @pCwOrM](https://img.shields.io/badge/CrocSwap%20Contributors-Volkan%20Dagli%20(%40pCwOrM)-024dad.svg)](https://github.com/CrocSwap/integer-mult-bounds/blob/50d768818f579d4e165b4c257c6ee25bca300802/CONTRIBUTORS.md)
 [![Sister Repo: WerrSoma Connectome](https://img.shields.io/badge/Sister%20Repo-WerrSoma%20Connectome-00f0ff.svg)](https://github.com/Lexovian/WerrSoma)
 [![Sister Repo: WerreduR](https://img.shields.io/badge/Sister%20Repo-WerreduR%20v4.0-059669.svg)](https://github.com/jesmaat/WerreduR)
+[![Sister Repo: WERRobotics](https://img.shields.io/badge/Sister%20Repo-WERRobotics%20(Arduino%20Edge%20AI)-ff9100.svg?logo=arduino&logoColor=white)](https://github.com/pCwOrM/WERRobotics)
 
 ---
 
