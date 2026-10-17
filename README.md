@@ -110,7 +110,7 @@ Expected output:
 ## 👥 Authors & Infrastructure Acknowledgments
 
 * **Volkan Dağlı** (Corresponding Author) — Anadolu University & ITouch Systems (ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703))
-* **Zerrin Dağlı** — Mersin University & Yusuf Kalkavan Anatolian High School (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
+* **Dr. Zerrin Dağlı** — Mersin University & Yusuf Kalkavan Anatolian High School (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
 * **Dağhan Dağlı** — Toros Science High School, MEV (Toros University) (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
 * **Bekirhan Dağlı** (Infrastructure Contributor) — Managing Partner, ITouch Systems Infrastructure & Discrete Systems
 
@@ -130,4 +130,4 @@ This work is anchored within the broader open-science research portfolio develop
 
 ## ⚖️ License & Mathematical Community Compatibility
 
-To ensure full compatibility with the **Lean 4 / Mathlib4** mathematical formalization ecosystem, all formal mathematical proofs and verification scripts in this repository are licensed under the **[Apache License, Version 2.0](LICENSE)** (Copyright © 2026 Volkan Dağlı, Zerrin Dağlı, Dağhan Dağlı & ITouch Bilişim Sistemleri Ltd. Şti.).
+To ensure full compatibility with the **Lean 4 / Mathlib4** mathematical formalization ecosystem, all formal mathematical proofs and verification scripts in this repository are licensed under the **[Apache License, Version 2.0](LICENSE)** (Copyright © 2026 Volkan Dağlı, Dr. Zerrin Dağlı, Dağhan Dağlı & ITouch Bilişim Sistemleri Ltd. Şti.).
