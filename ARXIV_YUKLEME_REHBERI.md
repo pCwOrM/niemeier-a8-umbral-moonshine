@@ -74,13 +74,14 @@ Volkan Dağlı, Dr. Zerrin Dağlı, Dağhan Dağlı
 ```
 
 #### 3. Primary Classification (Ana Kategori)
-* Açılır menüden şunu seçin:
+* Açılır menüden şunu seçin (Dağhan'ın endorse'unun bulunduğu kategori):
   ```text
-  math.NT (Mathematics - Number Theory)
+  cs.LO (Computer Science - Logic in Computer Science)
   ```
 
 #### 4. Cross-Lists / Secondary Categories (Ek Kategoriler)
-* Şu kategorileri ekleyin (Add cross-list):
+* Sırasıyla şu 4 kategoriyi ekleyin (Add cross-list):
+  * `math.NT` (Mathematics - Number Theory)
   * `math.AG` (Mathematics - Algebraic Geometry)
   * `math.LO` (Mathematics - Logic)
   * `hep-th` (High Energy Physics - Theory)
