@@ -2,6 +2,7 @@
 
 [![Zenodo Record](https://img.shields.io/badge/Zenodo-Record%2023324067-024dad.svg)](https://zenodo.org/records/23324067)
 [![Concept DOI](https://img.shields.io/badge/DOI-10.5281%2Fzenodo.23324066-024dad.svg)](https://doi.org/10.5281/zenodo.23324066)
+[![SSRN: 7668699](https://img.shields.io/badge/SSRN-7668699%20(Paper%2011)-002f6c.svg?logo=elsevier)](https://papers.ssrn.com/abstract=7668699)
 [![License: Apache-2.0](https://img.shields.io/badge/License-Apache--2.0-blue.svg)](./LICENSE)
 [![Lean 4 Verified](https://img.shields.io/badge/Lean%204-Certified%200%20Sorry-brightgreen.svg)](https://leanprover.github.io/)
 [![Python Oracle](https://img.shields.io/badge/Python%20Oracle-100%25%20PASS-brightgreen.svg)](https://github.com/pCwOrM/niemeier-a8-umbral-moonshine/blob/main/k3_umbral_niemeier_oracle.py)
