@@ -46,7 +46,7 @@ All algebraic and topological invariants are verified with **0 defects** in both
 | **Norm-2 Root Count** | 216 ($24 \times h$) | 216 (Exact) | `num_roots_niemeier_eq_216` |
 | **Root Sublattice Det** | $729 = 9^3$ | 729 (Exact) | `det_root_sublattice_eq_729` |
 | **Glue Code Order $\lvert G_{\text{glue}} \rvert$** | $27 = 3^3$ | 27 (Exact) | `glue_order_sq_eq_det` |
-| **Glue Generator Norm $\|g\|^2$** | 4 (Even Integer) | 4.0000 (Exact) | `glue_gen_is_even_integer` |
+| **Glue Generator Norm `‖g‖²`** | 4 (Even Integer) | 4.0000 (Exact) | `glue_gen_is_even_integer` |
 | **Niemeier Determinant** | 1.0 (Unimodular) | 1.0000 (Exact) | `det_niemeier_unimodular` |
 | **K3 Euler Characteristic $\chi(X)$** | 24 ($b_2 = 22$) | 24 (Exact) | `chi_K3_equals_niemeier_rank` |
 | **Umbral Lambency $\ell$** | 9 (Coxeter $h$) | 9 (Exact) | `lambency_eq_nine` |
@@ -116,8 +116,8 @@ Expected output:
 ## 👥 Authors & Infrastructure Acknowledgments
 
 * **Volkan Dağlı** (Corresponding Author) — Anadolu University & ITouch Systems (ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703))
-* **Dr. Zerrin Dağlı** — Mersin University & Yusuf Kalkavan Anatolian High School (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
-* **Dağhan Dağlı** — Toros Science High School, MEV (Toros University) (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
+* **Dr. Zerrin Dağlı** — Mersin University (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
+* **Dağhan Dağlı** — Toros University (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
 * **Bekirhan Dağlı** (Infrastructure Contributor) — Managing Partner, ITouch Systems Infrastructure & Discrete Systems
 
 ---
