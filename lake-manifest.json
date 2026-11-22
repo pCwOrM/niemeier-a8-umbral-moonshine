@@ -91,5 +91,5 @@
    "inputRev": "main",
    "inherited": true,
    "configFile": "lakefile.toml"}],
- "name": "niemeier-a8-umbral-moonshine",
+ "name": "niemeier_a8_umbral_moonshine",
  "lakeDir": ".lake"}

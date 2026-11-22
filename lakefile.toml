@@ -1,4 +1,4 @@
-name = "niemeier-a8-umbral-moonshine"
+name = "niemeier_a8_umbral_moonshine"
 version = "0.1.0"
 keywords = ["math", "geometry", "lattice", "moonshine"]
 defaultTargets = ["NiemeierA8UmbralMoonshine"]
