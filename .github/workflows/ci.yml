@@ -18,7 +18,7 @@ jobs:
           build-args: ""
       - name: Verify zero sorry in Lean sources
         run: |
-          if grep -rnE "\bsorry\b" --include="*.lean" .; then
+          if grep -rnE "\bsorry\b" --include="*.lean" --exclude-dir=".lake" .; then
             echo "Found sorry in Lean proof!"
             exit 1
           fi
