@@ -114,18 +114,19 @@ structure K3Topology where
   b3 : Nat := 0
   b4 : Nat := 1
 
+/-- Canonical smooth complex K3 surface topology instance. -/
+def canonicalK3Topology : K3Topology := {}
+
 /-- Euler characteristic of K3 surface: chi(K3) = b0 - b1 + b2 - b3 + b4 = 24. -/
 def chi_K3 (t : K3Topology) : Int :=
   (t.b0 : Int) - (t.b1 : Int) + (t.b2 : Int) - (t.b3 : Int) + (t.b4 : Int)
 
-theorem chi_K3_eq_24 (t : K3Topology) : chi_K3 t = 24 := by
-  unfold chi_K3
-  norm_num
+theorem chi_K3_eq_24 : chi_K3 canonicalK3Topology = 24 := by
+  rfl
 
-theorem chi_K3_equals_niemeier_rank (t : K3Topology) :
-    chi_K3 t = (rank_niemeier : Int) := by
-  unfold chi_K3 rank_niemeier rank_A8
-  norm_num
+theorem chi_K3_equals_niemeier_rank :
+    chi_K3 canonicalK3Topology = (rank_niemeier : Int) := by
+  rfl
 
 /-- Hodge decomposition of the middle cohomology H^2(K3, C): h^{2,0} = 1, h^{1,1} = 20, h^{0,2} = 1. -/
 structure K3Hodge where
@@ -133,7 +134,11 @@ structure K3Hodge where
   h11 : Nat := 20
   h02 : Nat := 1
 
-theorem k3_hodge_sum (h : K3Hodge) : h.h20 + h.h11 + h.h02 = 22 := by
+/-- Canonical K3 Hodge diamond instance. -/
+def canonicalK3Hodge : K3Hodge := {}
+
+theorem k3_hodge_sum :
+    canonicalK3Hodge.h20 + canonicalK3Hodge.h11 + canonicalK3Hodge.h02 = 22 := by
   rfl
 
 /-!
