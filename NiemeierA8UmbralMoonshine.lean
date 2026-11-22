@@ -10,7 +10,7 @@
 
 import Mathlib.Data.Nat.Basic
 import Mathlib.Data.Nat.GCD.Basic
-import Mathlib.Data.Rat.Basic
+import Mathlib.Data.Rat.Defs
 import Mathlib.Data.ZMod.Basic
 import Mathlib.Tactic.Ring
 import Mathlib.Tactic.Linarith
