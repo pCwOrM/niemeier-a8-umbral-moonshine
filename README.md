@@ -22,6 +22,24 @@
 [![Corporate: werracle.com](https://img.shields.io/badge/Corporate%20Portal-werracle.com-2b3bd1.svg?logo=cloudflare&logoColor=white)](https://werracle.com/)
 [![Cloud Vault: R2 Active](https://img.shields.io/badge/Cloud%20Vault-Cloudflare%20R2%20Active-f38020.svg?logo=cloudflare&logoColor=white)](https://werracle.com/)
 
+<p align="center">
+  <img src="assets/demo.gif" alt="Niemeier Lattice A8^3 & K3 Umbral Moonshine Oracle Demo" width="820" />
+</p>
+
+## ⚡ 30-Second Quick Start
+
+```bash
+git clone https://github.com/pCwOrM/niemeier-a8-umbral-moonshine.git && cd niemeier-a8-umbral-moonshine
+python k3_umbral_niemeier_oracle.py
+```
+
+**Observed Output:**
+```text
+[*] Total Rank: 24 (Theoretical: 24) | Total Root Count: 216
+[*] Glue Group Order |G_glue|: 27 | Niemeier Overlattice Determinant: 1.0
+[+] Even Unimodular Property of Niemeier Lattice A_8^3: MATHEMATICALLY LOCKED (0 DEFECTS).
+```
+
 ---
 
 ## 🏛️ Executive Summary
