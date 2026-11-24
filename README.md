@@ -101,7 +101,7 @@ Expected output:
 
 ```bibtex
 @software{dagli2026niemeier,
-  author       = {Dağlı, Volkan and Dağlı, Zerrin and Dağlı, Dağhan},
+  author       = {Dagli, Volkan and Dagli, Zerrin and Dagli, Daghan},
   title        = {Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice A_8^3, K3 Hodge Duality and Umbral Moonshine},
   month        = oct,
   year         = 2026,
@@ -115,10 +115,10 @@ Expected output:
 
 ## 👥 Authors & Infrastructure Acknowledgments
 
-* **Volkan Dağlı** (Corresponding Author) — Anadolu University & ITouch Systems (ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703))
-* **Dr. Zerrin Dağlı** — Mersin University (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
-* **Dağhan Dağlı** — Toros University (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
-* **Bekirhan Dağlı** (Infrastructure Contributor) — Managing Partner, ITouch Systems Infrastructure & Discrete Systems
+* **Volkan Dagli** (Corresponding Author) — Anadolu University & ITouch Systems (ORCID: [0009-0000-1587-8703](https://orcid.org/0009-0000-1587-8703))
+* **Dr. Zerrin Dagli** — Mersin University (ORCID: [0000-0001-9490-6425](https://orcid.org/0000-0001-9490-6425))
+* **Daghan Dagli** — Toros University (ORCID: [0009-0003-2492-8313](https://orcid.org/0009-0003-2492-8313))
+* **Bekirhan Dagli** (Infrastructure Contributor) — Managing Partner, ITouch Systems Infrastructure & Discrete Systems
 
 ---
 
@@ -201,4 +201,4 @@ All monographs, formal Lean 4 specifications, and empirical datasets across the 
 
 ## ⚖️ License & Mathematical Community Compatibility
 
-To ensure full compatibility with the **Lean 4 / Mathlib4** mathematical formalization ecosystem, all formal mathematical proofs and verification scripts in this repository are licensed under the **[Apache License, Version 2.0](LICENSE)** (Copyright © 2026 Volkan Dağlı, Dr. Zerrin Dağlı, Dağhan Dağlı & ITouch Bilişim Sistemleri Ltd. Şti.).
+To ensure full compatibility with the **Lean 4 / Mathlib4** mathematical formalization ecosystem, all formal mathematical proofs and verification scripts in this repository are licensed under the **[Apache License, Version 2.0](LICENSE)** (Copyright © 2026 Volkan Dagli, Dr. Zerrin Dagli, Daghan Dagli & ITouch Bilişim Sistemleri Ltd. Şti.).
