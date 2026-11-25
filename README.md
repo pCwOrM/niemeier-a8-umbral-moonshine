@@ -40,6 +40,14 @@ python k3_umbral_niemeier_oracle.py
 [+] Even Unimodular Property of Niemeier Lattice A_8^3: MATHEMATICALLY LOCKED (0 DEFECTS).
 ```
 
+## 🧠 Codebase Knowledge Graph & Call-Flow
+
+<p align="center">
+  <img src="assets/architecture_graph.svg" alt="Niemeier A8^3 Knowledge Graph" width="860" />
+</p>
+
+> Explore the interactive AST dependency graph ([`docs/architecture/graph.html`](docs/architecture/graph.html)) or the Mermaid call-flow explorer ([`docs/architecture/callflow.html`](docs/architecture/callflow.html)), generated deterministically via `graphify`.
+
 ---
 
 ## 🏛️ Executive Summary

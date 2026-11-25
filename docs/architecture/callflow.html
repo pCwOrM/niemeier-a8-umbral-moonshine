@@ -1,0 +1,1947 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>niemeier-a8-umbral-moonshine — Complete Call Flow &amp; Architecture Documentation</title>
+<script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+<style>
+:root {
+  --bg: #0f172a; --surface: #1e293b; --border: #334155;
+  --text: #e2e8f0; --muted: #94a3b8; --accent: #38bdf8;
+  --warn: #fbbf24; --err: #f87171; --ok: #34d399;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', system-ui, -apple-system, sans-serif; background: var(--bg); color: var(--text); line-height: 1.7; }
+.container { max-width: 1200px; margin: 0 auto; padding: 40px 24px; }
+h1 { font-size: 2.4rem; margin-bottom: 8px; background: linear-gradient(135deg, var(--accent), #a78bfa); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+h2 { font-size: 1.7rem; margin: 48px 0 16px; padding-bottom: 8px; border-bottom: 2px solid var(--accent); }
+h3 { font-size: 1.25rem; margin: 32px 0 12px; color: var(--accent); }
+h4 { font-size: 1.05rem; margin: 20px 0 8px; color: var(--warn); }
+p { margin: 8px 0; color: var(--muted); }
+.subtitle { color: var(--muted); font-size: 1.1rem; margin-bottom: 32px; }
+.mermaid { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 24px; margin: 20px 0; overflow-x: auto; position: relative; }
+.mermaid.is-enhanced { padding: 0; overflow: hidden; min-height: 260px; }
+.mermaid-viewport { padding: 54px 24px 24px; overflow: hidden; cursor: grab; touch-action: none; min-height: 260px; }
+.mermaid-viewport.is-dragging { cursor: grabbing; }
+.mermaid-viewport svg { max-width: none !important; height: auto; transform-origin: 0 0; transition: transform 120ms ease; }
+.mermaid-toolbar { position: absolute; top: 10px; right: 10px; z-index: 3; display: flex; align-items: center; gap: 6px; padding: 6px; background: rgba(15,23,42,0.92); border: 1px solid var(--border); border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.28); }
+.mermaid-toolbar button, .mermaid-toolbar .zoom-level { height: 28px; min-width: 32px; border: 1px solid var(--border); border-radius: 6px; background: #1e293b; color: var(--text); font: 600 0.78rem system-ui, sans-serif; display: inline-flex; align-items: center; justify-content: center; }
+.mermaid-toolbar button { cursor: pointer; }
+.mermaid-toolbar button:hover { border-color: var(--accent); color: var(--accent); }
+.mermaid-toolbar .zoom-level { min-width: 52px; color: var(--muted); background: transparent; }
+.call-table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.92rem; }
+.call-table th { background: #1a2744; color: var(--accent); text-align: left; padding: 10px 14px; border: 1px solid var(--border); }
+.call-table td { padding: 8px 14px; border: 1px solid var(--border); vertical-align: top; }
+.call-table tr:nth-child(even) { background: rgba(255,255,255,0.02); }
+.tag { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.8rem; font-weight: 600; }
+.tag-async { background: #7c3aed33; color: #a78bfa; }
+.tag-class { background: #05966933; color: var(--ok); }
+.tag-func { background: #2563eb33; color: var(--accent); }
+.tag-cmd { background: #d9770633; color: var(--warn); }
+.tag-endpoint { background: #dc262633; color: var(--err); }
+.tag-hook { background: #db277733; color: #f472b6; }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 20px; margin: 16px 0; }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 16px; margin: 16px 0; }
+.arrow-chain { font-family: 'Fira Code', monospace; font-size: 0.85rem; color: var(--accent); padding: 10px; background: rgba(56,189,248,0.06); border-radius: 6px; }
+code { font-family: 'Fira Code', 'Cascadia Code', monospace; background: rgba(255,255,255,0.06); padding: 1px 6px; border-radius: 3px; font-size: 0.88em; }
+ul, ol { margin: 8px 0 8px 24px; color: var(--muted); }
+li { margin: 4px 0; }
+a { color: var(--accent); }
+hr { border: none; border-top: 1px solid var(--border); margin: 40px 0; }
+.nav { position: sticky; top: 0; background: var(--bg); z-index: 10; padding: 12px 0; border-bottom: 1px solid var(--border); display: flex; gap: 20px; flex-wrap: wrap; font-size: 0.9rem; }
+.nav a { text-decoration: none; }
+.nav a:hover { text-decoration: underline; }
+@media (max-width: 768px) { .container { padding: 16px; } h1 { font-size: 1.8rem; } }
+
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>niemeier-a8-umbral-moonshine — Complete Call Flow &amp; Architecture Documentation</h1>
+<p class="subtitle">Generated from graphify knowledge graph: 146 nodes, 167 edges, 10 communities. Commit: 0afdd07</p>
+
+<div class="nav">
+    <a href="#overview">Architecture Overview</a>
+    <a href="#build-graph">Graph Build</a>
+    <a href="#analysis-clustering">Analysis &amp; Clustering</a>
+    <a href="#ad-m-5-k-nye-ve-stveri-metadata-giri-i">Adım 5: Künye ve Üstveri (Metadata) Girişi</a>
+    <a href="#zenodo-github-da-itim-ve-yayin-kilavuzu">🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU</a>
+    <a href="#machine-certified-formalization-of-the-24-dimens">Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine</a>
+    <a href="#the-24-dimensional-niemeier-lattice-a-8-3-k3-hod">The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization</a>
+    <a href="#2-mathematical-architecture">2. Mathematical Architecture</a>
+    <a href="#volkanbridge-multi-layer-algebraic-sieve-synthes">VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization</a>
+</div>
+
+<!-- ====== Architecture Overview ====== -->
+<h2 id="overview">1. Architecture Overview</h2>
+
+<div class="mermaid">
+
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    BUILD_GRAPH_321CBB04("Graph Build<br/><small>59 nodes</small>")
+    class BUILD_GRAPH_321CBB04 module;
+    ANALYSIS_CLUSTERING_C79796DA("Analysis &amp; Clustering<br/><small>16 nodes</small>")
+    class ANALYSIS_CLUSTERING_C79796DA module;
+    AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_476DBEA4("Adım 5: Künye ve Üstveri (Metadata) Girişi<br/><small>20 nodes</small>")
+    class AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_476DBEA4 module;
+    ZENODO_GITHUB_DA_ITIM_VE_YAYIN_KILAVUZU_4C5F717A("🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU<br/><small>15 nodes</small>")
+    class ZENODO_GITHUB_DA_ITIM_VE_YAYIN_KILAVUZU_4C5F717A module;
+    MACHINE_CERTIFIED_FORMALIZATION_OF_THE_24_DIMENS_AD842159("Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine<br/><small>10 nodes</small>")
+    class MACHINE_CERTIFIED_FORMALIZATION_OF_THE_24_DIMENS_AD842159 module;
+    THE_24_DIMENSIONAL_NIEMEIER_LATTICE_A_8_3_K3_HOD_F78A0C31("The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization<br/><small>10 nodes</small>")
+    class THE_24_DIMENSIONAL_NIEMEIER_LATTICE_A_8_3_K3_HOD_F78A0C31 module;
+    SECTION_2_MATHEMATICAL_ARCHITECTURE_07100B6C("2. Mathematical Architecture<br/><small>9 nodes</small>")
+    class SECTION_2_MATHEMATICAL_ARCHITECTURE_07100B6C module;
+    VOLKANBRIDGE_MULTI_LAYER_ALGEBRAIC_SIEVE_SYNTHES_5C9F461F("VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization<br/><small>7 nodes</small>")
+    class VOLKANBRIDGE_MULTI_LAYER_ALGEBRAIC_SIEVE_SYNTHES_5C9F461F module;
+    BUILD_GRAPH_321CBB04 -.-> ANALYSIS_CLUSTERING_C79796DA
+    ANALYSIS_CLUSTERING_C79796DA -.-> AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_476DBEA4
+    AD_M_5_K_NYE_VE_STVERI_METADATA_GIRI_I_476DBEA4 -.-> ZENODO_GITHUB_DA_ITIM_VE_YAYIN_KILAVUZU_4C5F717A
+    ZENODO_GITHUB_DA_ITIM_VE_YAYIN_KILAVUZU_4C5F717A -.-> MACHINE_CERTIFIED_FORMALIZATION_OF_THE_24_DIMENS_AD842159
+    MACHINE_CERTIFIED_FORMALIZATION_OF_THE_24_DIMENS_AD842159 -.-> THE_24_DIMENSIONAL_NIEMEIER_LATTICE_A_8_3_K3_HOD_F78A0C31
+    THE_24_DIMENSIONAL_NIEMEIER_LATTICE_A_8_3_K3_HOD_F78A0C31 -.-> SECTION_2_MATHEMATICAL_ARCHITECTURE_07100B6C
+    SECTION_2_MATHEMATICAL_ARCHITECTURE_07100B6C -.-> VOLKANBRIDGE_MULTI_LAYER_ALGEBRAIC_SIEVE_SYNTHES_5C9F461F
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<div class="grid">
+  <div class="card">
+    <h4>Architecture Layers</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>Layer</th><th>Nodes</th><th>Communities</th></tr>
+      <tr><td>Graph Build</td><td>59</td><td><code>0, 2, 7</code></td></tr><tr><td>Analysis &amp; Clustering</td><td>16</td><td><code>3</code></td></tr><tr><td>Adım 5: Künye ve Üstveri (Metadata) Girişi</td><td>20</td><td><code>1</code></td></tr><tr><td>🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU</td><td>15</td><td><code>4</code></td></tr><tr><td>Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine</td><td>10</td><td><code>5</code></td></tr><tr><td>The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization</td><td>10</td><td><code>6</code></td></tr><tr><td>2. Mathematical Architecture</td><td>9</td><td><code>8</code></td></tr><tr><td>VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization</td><td>7</td><td><code>9</code></td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Core Flow</h4>
+    <div class="arrow-chain">Graph Build -&gt; Analysis &amp; Clustering -&gt; Adım 5: Künye ve Üstveri (Metadata) Girişi -&gt; 🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU -&gt; Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine -&gt; The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization -&gt; 2. Mathematical Architecture</div>
+  </div>
+</div>
+<div class="grid">
+  <div class="card">
+    <h4>Graph Report Highlights</h4>
+    <ul>
+      <li>146 nodes · 167 edges · 10 communities</li>
+      <li>Extraction: 99% EXTRACTED · 1% INFERRED · 0% AMBIGUOUS · INFERRED: 1 edges (avg confidence: 0.85)</li>
+      <li>Token cost: 0 input · 0 output</li>
+      <li>1. `Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine` - 12 edges</li>
+      <li>2. `Adım 5: Künye ve Üstveri (Metadata) Girişi` - 10 edges</li>
+      <li>3. `Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine` - 9 edges</li>
+    </ul>
+  </div>
+</div>
+<hr>
+<!-- ====== 2. Graph Build ====== -->
+<h2 id="build-graph">2. Graph Build</h2>
+<p>Graph Build groups implementation around sieve, werr, multilayer, synthesispy, mostly in scripts/werr_multilayer_sieve_synthesis.py, .github/workflows/ci.yml, k3_umbral_niemeier_oracle.py. This section covers 59 nodes and 87 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Graph Build (59 nodes, 87 edges)
+    subgraph build_graph_scripts_werr_multilayer_sieve_synthe_a5d13e63["scripts/werr_multilayer_sieve_synthesis.py"]
+        scripts_werr_multilayer_sieve_synthesis_25f7687d("werr_multilayer_sieve_synthesis.py")
+        scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7("presieve ablation rsa270()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_solve_ta_a915dd98("solve_target()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_main_9ec365c6("main()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_build_be_a2c2250c("build_benchmark_targets()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_benchmar_f6a25b93("BenchmarkTarget<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_carrier_c14cada9("_carrier_brent_rho_worker()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_gdt_exac_6b54038f("gdt_exact_count_below()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_gdt_para_ac5c4a8e("gdt_parameters()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_radical_10d7f38c("radical_and_totient()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_verify_n_5284da19("3a8 isotropic compression()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_build_qr_cf1c09ef("build_qr_coset_bitmask()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+        scripts_werr_multilayer_sieve_synthesis_solve_ca_0faa586b("solve_carrier_brent_rho()<br/><small>scripts/werr_multilayer_sieve_synthesis.py</small>")
+    end
+    subgraph build_graph_External_generated_653891f5["External / generated"]
+        time_714eea0f("time")
+        math_7a488390("math")
+        hashlib_7616ac97("hashlib")
+    end
+    subgraph build_graph_k3_umbral_niemeier_oracle_py_d1f3c263["k3_umbral_niemeier_oracle.py"]
+        k3_umbral_niemeier_oracle_verify_niemeier_a8_cub_1fc62232("verify_niemeier_a8_cubed()<br/><small>k3_umbral_niemeier_oracle.py</small>")
+        k3_umbral_niemeier_oracle_1f8e730c("k3_umbral_niemeier_oracle.py")
+    end
+    scripts_werr_multilayer_sieve_synthesis_build_be_a2c2250c -->|calls| scripts_werr_multilayer_sieve_synthesis_benchmar_f6a25b93
+    scripts_werr_multilayer_sieve_synthesis_carrier_c14cada9 -->|calls| time_714eea0f
+    scripts_werr_multilayer_sieve_synthesis_carrier_c14cada9 -->|calls| math_7a488390
+    scripts_werr_multilayer_sieve_synthesis_gdt_exac_6b54038f -->|calls| scripts_werr_multilayer_sieve_synthesis_gdt_para_ac5c4a8e
+    scripts_werr_multilayer_sieve_synthesis_gdt_exac_6b54038f -->|calls| math_7a488390
+    scripts_werr_multilayer_sieve_synthesis_gdt_para_ac5c4a8e -->|calls| scripts_werr_multilayer_sieve_synthesis_radical_10d7f38c
+    scripts_werr_multilayer_sieve_synthesis_gdt_para_ac5c4a8e -->|calls| math_7a488390
+    scripts_werr_multilayer_sieve_synthesis_main_9ec365c6 -->|calls| scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7
+    scripts_werr_multilayer_sieve_synthesis_main_9ec365c6 -->|calls| scripts_werr_multilayer_sieve_synthesis_build_be_a2c2250c
+    scripts_werr_multilayer_sieve_synthesis_main_9ec365c6 -->|calls| scripts_werr_multilayer_sieve_synthesis_solve_ta_a915dd98
+    scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 -->|calls| math_7a488390
+    scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 -->|calls| time_714eea0f
+    scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 -->|calls| scripts_werr_multilayer_sieve_synthesis_gdt_exac_6b54038f
+    scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 -->|calls| scripts_werr_multilayer_sieve_synthesis_verify_n_5284da19
+    scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 -->|calls| scripts_werr_multilayer_sieve_synthesis_build_qr_cf1c09ef
+    scripts_werr_multilayer_sieve_synthesis_solve_ca_0faa586b -->|calls| hashlib_7616ac97
+    scripts_werr_multilayer_sieve_synthesis_solve_ta_a915dd98 -->|calls| time_714eea0f
+    scripts_werr_multilayer_sieve_synthesis_solve_ta_a915dd98 -->|calls| scripts_werr_multilayer_sieve_synthesis_solve_ca_0faa586b
+    scripts_werr_multilayer_sieve_synthesis_25f7687d -->|imports| hashlib_7616ac97
+    scripts_werr_multilayer_sieve_synthesis_25f7687d -->|imports| math_7a488390
+    scripts_werr_multilayer_sieve_synthesis_25f7687d -->|imports| time_714eea0f
+    %% Omitted for readability: 41 nodes, 0 edges
+    class scripts_werr_multilayer_sieve_synthesis_25f7687d module;
+    class scripts_werr_multilayer_sieve_synthesis_run_pres_d64cfef7 function;
+    class scripts_werr_multilayer_sieve_synthesis_solve_ta_a915dd98 function;
+    class scripts_werr_multilayer_sieve_synthesis_main_9ec365c6 function;
+    class scripts_werr_multilayer_sieve_synthesis_build_be_a2c2250c function;
+    class scripts_werr_multilayer_sieve_synthesis_benchmar_f6a25b93 klass;
+    class scripts_werr_multilayer_sieve_synthesis_carrier_c14cada9 function;
+    class scripts_werr_multilayer_sieve_synthesis_gdt_exac_6b54038f function;
+    class scripts_werr_multilayer_sieve_synthesis_gdt_para_ac5c4a8e function;
+    class scripts_werr_multilayer_sieve_synthesis_radical_10d7f38c function;
+    class scripts_werr_multilayer_sieve_synthesis_verify_n_5284da19 function;
+    class scripts_werr_multilayer_sieve_synthesis_build_qr_cf1c09ef function;
+    class scripts_werr_multilayer_sieve_synthesis_solve_ca_0faa586b function;
+    class time_714eea0f function;
+    class math_7a488390 function;
+    class hashlib_7616ac97 function;
+    class k3_umbral_niemeier_oracle_verify_niemeier_a8_cub_1fc62232 function;
+    class k3_umbral_niemeier_oracle_1f8e730c module;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>BenchmarkTarget</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-class">Class</span></td>
+  <td><code>build_benchmark_targets()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>BenchmarkTarget node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>build_benchmark_targets()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>main()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>BenchmarkTarget</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>build_benchmark_targets() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>build_qr_coset_bitmask()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>presieve ablation rsa270()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>build_qr_coset_bitmask() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>_carrier_brent_rho_worker()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_carrier_brent_rho()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>math</code><br><code>time</code></td>
+  <td>_carrier_brent_rho_worker() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>gdt_exact_count_below()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>presieve ablation rsa270()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>gdt_parameters()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>math</code></td>
+  <td>gdt_exact_count_below() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>gdt_parameters()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>gdt_exact_count_below()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>math</code><br><code>radical_and_totient()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>gdt_parameters() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>main()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>build_benchmark_targets()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>presieve ablation rsa270()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>solve_target()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>main() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>radical_and_totient()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>gdt_parameters()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>radical_and_totient() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>run_presieve_ablation_rsa270()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>main()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>3a8 isotropic compression()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>build_qr_coset_bitmask()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>gdt_exact_count_below()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br>+2 more</td>
+  <td>run_presieve_ablation_rsa270() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>solve_carrier_brent_rho()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_target()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>_carrier_brent_rho_worker()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>hashlib</code><br><code>multiprocessing</code></td>
+  <td>solve_carrier_brent_rho() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>solve_target()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>main()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>solve_carrier_brent_rho()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>solve_word_packed_f2_qs()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>time</code><br>+1 more</td>
+  <td>solve_target() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>solve_volkanbridge_harmonic_fermat()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_target()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>math</code></td>
+  <td>solve_volkanbridge_harmonic_fermat() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>solve_word_packed_f2_qs()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_target()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><code>_tonelli_shanks()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>math</code></td>
+  <td>solve_word_packed_f2_qs() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>_tonelli_shanks()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_word_packed_f2_qs()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>_tonelli_shanks() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>verify_niemeier_3a8_isotropic_compression()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>presieve ablation rsa270()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>verify_niemeier_3a8_isotropic_compression() node in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>werr_multilayer_sieve_synthesis.py</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-class">Module</span></td>
+  <td>External entry / no inbound edge</td>
+  <td><code>dataclasses</code><br><code>hashlib</code><br><code>math</code><br>+3 more</td>
+  <td>Module file in scripts/werr_multilayer_sieve_synthesis.py.</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>GDT v3.0 Theorem 18 (`gdt_count_arbitrary_bound` in DensityCount.lean): C(q *…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for GDT v3.0 Theorem 18 (`gdt_count_arbitrary_bound` in DensityCount.lean): C(q *….</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>Verifies the 24D Niemeier lattice A_8^3 glue code reduction over (Z/9Z)^3 (DOI:…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Verifies the 24D Niemeier lattice A_8^3 glue code reduction over (Z/9Z)^3 (DOI:….</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>GAP-0190 / GAP-0247 Orbit-Stabilizer Coset Quotienting (arXiv:2609.38492):…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for GAP-0190 / GAP-0247 Orbit-Stabilizer Coset Quotienting (arXiv:2609.38492):….</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>Evaluates the 5-level progressive candidate pruning hierarchy across Pillars…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Evaluates the 5-level progressive candidate pruning hierarchy across Pillars….</td>
+</tr>
+<tr>
+  <td>21</td>
+  <td><code>VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 (5.85x) to…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 (5.85x) to….</td>
+</tr>
+<tr>
+  <td>22</td>
+  <td><code>Two-phase Fermat/Lehman solver combining VolkanBridge radical multiplier…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Two-phase Fermat/Lehman solver combining VolkanBridge radical multiplier….</td>
+</tr>
+<tr>
+  <td>23</td>
+  <td><code>Computes r such that r^2 == n (mod p) for odd prime p with (n|p) = 1.</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Computes r such that r^2 == n (mod p) for odd prime p with (n|p) = 1..</td>
+</tr>
+<tr>
+  <td>24</td>
+  <td><code>Self-contained Quadratic Sieve using GDT-admissible prime factor base…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Self-contained Quadratic Sieve using GDT-admissible prime factor base….</td>
+</tr>
+<tr>
+  <td>25</td>
+  <td><code>Parallel Pollard-Brent cycle detection combining: - GDT/Niemeier coprime…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Parallel Pollard-Brent cycle detection combining: - GDT/Niemeier coprime….</td>
+</tr>
+<tr>
+  <td>26</td>
+  <td><code>Computes (rad(n), phi(rad(n)), prime_factors) for wheel moduli.</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Computes (rad(n), phi(rad(n)), prime_factors) for wheel moduli..</td>
+</tr>
+<tr>
+  <td>27</td>
+  <td><code>Implements the core GDT v3.0 / VolkanBridge structural invariants: d =…</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Design note for Implements the core GDT v3.0 / VolkanBridge structural invariants: d =….</td>
+</tr>
+<tr>
+  <td>28</td>
+  <td><code>dataclasses</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-async">Async</span></td>
+  <td><code>werr_multilayer_sieve_synthesis.py</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>dataclasses node in project.</td>
+</tr>
+<tr>
+  <td>29</td>
+  <td><code>hashlib</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>solve_carrier_brent_rho()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>werr_multilayer_sieve_synthesis.py</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small></td>
+  <td>No direct outbound edge</td>
+  <td>Caches analysis results or computes cache keys.</td>
+</tr>
+<tr>
+  <td>30</td>
+  <td><code>math</code><br><small style="color:var(--muted)"></small></td>
+  <td><span class="tag tag-func">Function</span></td>
+  <td><code>_carrier_brent_rho_worker()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>gdt_exact_count_below()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br><code>gdt_parameters()</code><br><small style="color:var(--muted)">scripts/werr_multilayer_sieve_synthesis.py</small><br>+4 more</td>
+  <td>No direct outbound edge</td>
+  <td>math node in project.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>scripts/werr_multilayer_sieve_synthesis.py</code></td><td>27 nodes</td></tr>
+<tr><td><code>.github/workflows/ci.yml</code></td><td>17 nodes</td></tr>
+<tr><td><code>k3_umbral_niemeier_oracle.py</code></td><td>7 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x34, calls x29, explains x14, imports x6. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 3. Analysis & Clustering ====== -->
+<h2 id="analysis-clustering">3. Analysis &amp; Clustering</h2>
+<p>Analysis &amp; Clustering groups implementation around readmemd, formal, mathematical, records, mostly in README.md. This section covers 16 nodes and 15 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Analysis &amp; Clustering (16 nodes, 15 edges)
+    readme_machine_certified_formalization_of_the_24_530bafa1("Machine-Certified Formalization of the...<br/><small>README.md</small>")
+    readme_global_records_formal_proofs_curated_awes_d0dd0738("🏆 Global Records, Formal Proofs, Curate...<br/><small>README.md</small>")
+    readme_f78a71af("README.md")
+    readme_1_certified_mathematical_records_formal_v_655b5a99("1. Certified Mathematical Records &amp; For...<br/><small>README.md</small>")
+    readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a("2. Curated Ecosystem Recognitions &amp; Ben...<br/><small>README.md</small>")
+    readme_3_sovereign_on_chain_deployments_werrium_522e003a("3. Sovereign On-Chain Deployments (Wer...<br/><small>README.md</small>")
+    readme_license_mathematical_community_compatibil_1b37b4d9("⚖️ License &amp; Mathematical Community Com...<br/><small>README.md</small>")
+    readme_30_second_quick_start_0a5c97eb("⚡ 30-Second Quick Start<br/><small>README.md</small>")
+    readme_associated_formal_verification_world_reco_d90ed0d3("🏛️ Associated Formal Verification, Worl...<br/><small>README.md</small>")
+    readme_companion_open_science_formal_architectur_437af0ae("🏛️ Companion Open-Science Formal Archit...<br/><small>README.md</small>")
+    readme_executive_summary_fe3866d7("🏛️ Executive Summary<br/><small>README.md</small>")
+    readme_authors_infrastructure_acknowledgments_f9a201ea("👥 Authors &amp; Infrastructure Acknowledgments<br/><small>README.md</small>")
+    readme_permanent_citation_f2d44f8d("📜 Permanent Citation<br/><small>README.md</small>")
+    readme_mathematical_invariants_verified_643dc7e5("🔬 Mathematical Invariants Verified<br/><small>README.md</small>")
+    readme_repository_structure_895860fe("🚀 Repository Structure<br/><small>README.md</small>")
+    readme_running_the_verification_oracle_0a9f0038("🧪 Running the Verification Oracle<br/><small>README.md</small>")
+    readme_f78a71af -->|contains| readme_machine_certified_formalization_of_the_24_530bafa1
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_1_certified_mathematical_records_formal_v_655b5a99
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a
+    readme_global_records_formal_proofs_curated_awes_d0dd0738 -->|contains| readme_3_sovereign_on_chain_deployments_werrium_522e003a
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_permanent_citation_f2d44f8d
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_authors_infrastructure_acknowledgments_f9a201ea
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_companion_open_science_formal_architectur_437af0ae
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_associated_formal_verification_world_reco_d90ed0d3
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_global_records_formal_proofs_curated_awes_d0dd0738
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_license_mathematical_community_compatibil_1b37b4d9
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_30_second_quick_start_0a5c97eb
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_executive_summary_fe3866d7
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_mathematical_invariants_verified_643dc7e5
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_repository_structure_895860fe
+    readme_machine_certified_formalization_of_the_24_530bafa1 -->|contains| readme_running_the_verification_oracle_0a9f0038
+    class readme_machine_certified_formalization_of_the_24_530bafa1 concept;
+    class readme_global_records_formal_proofs_curated_awes_d0dd0738 concept;
+    class readme_f78a71af concept;
+    class readme_1_certified_mathematical_records_formal_v_655b5a99 concept;
+    class readme_2_curated_ecosystem_recognitions_benchmar_7e51ad8a concept;
+    class readme_3_sovereign_on_chain_deployments_werrium_522e003a concept;
+    class readme_license_mathematical_community_compatibil_1b37b4d9 concept;
+    class readme_30_second_quick_start_0a5c97eb concept;
+    class readme_associated_formal_verification_world_reco_d90ed0d3 concept;
+    class readme_companion_open_science_formal_architectur_437af0ae concept;
+    class readme_executive_summary_fe3866d7 concept;
+    class readme_authors_infrastructure_acknowledgments_f9a201ea concept;
+    class readme_permanent_citation_f2d44f8d concept;
+    class readme_mathematical_invariants_verified_643dc7e5 concept;
+    class readme_repository_structure_895860fe concept;
+    class readme_running_the_verification_oracle_0a9f0038 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>README.md</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing README.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. Certified Mathematical Records &amp; Formal Verification (`0 sorry`)</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Certified Mathematical Records &amp; Formal Verification (`0 sorry`).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. Curated Ecosystem Recognitions &amp; Benchmark Evaluations</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Curated Ecosystem Recognitions &amp; Benchmark Evaluations.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>⚡ 30-Second Quick Start</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ⚡ 30-Second Quick Start.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>3. Sovereign On-Chain Deployments (`Werrium / $WERR`), Multi-Chain Testnets &amp; Grant Pipelines</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Sovereign On-Chain Deployments (`Werrium / $WERR`), Multi-Chain Testnets &amp; Grant Pipelines.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>🏛️ Associated Formal Verification, World Records &amp; Scientific Corpus</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Associated Formal Verification, World Records &amp; Scientific Corpus.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>👥 Authors &amp; Infrastructure Acknowledgments</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 👥 Authors &amp; Infrastructure Acknowledgments.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>🏛️ Companion Open-Science Formal Architecture</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Companion Open-Science Formal Architecture.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>🏛️ Executive Summary</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Executive Summary.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>🏆 Global Records, Formal Proofs, Curated Awesome Merges &amp; On-Chain Infrastructure</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏆 Global Records, Formal Proofs, Curated Awesome Merges &amp; On-Chain Infrastructure.</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>⚖️ License &amp; Mathematical Community Compatibility</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ⚖️ License &amp; Mathematical Community Compatibility.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>🔬 Mathematical Invariants Verified</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🔬 Mathematical Invariants Verified.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>📜 Permanent Citation</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📜 Permanent Citation.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>🚀 Repository Structure</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 Repository Structure.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>🧪 Running the Verification Oracle</code><br><small style="color:var(--muted)">README.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧪 Running the Verification Oracle.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>README.md</code></td><td>16 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x15. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 4. Adım 5: Künye ve Üstveri (Metadata) Girişi ====== -->
+<h2 id="ad-m-5-k-nye-ve-stveri-metadata-giri-i">4. Adım 5: Künye ve Üstveri (Metadata) Girişi</h2>
+<p>Adım 5: Künye ve Üstveri (Metadata) Girişi groups implementation around arxiv, yukleme, rehberimd, adım, mostly in ARXIV_YUKLEME_REHBERI.md. This section covers 20 nodes and 19 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Adım 5: Künye ve Üstveri (Metadata) Girişi (20 nodes, 19 edges)
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5("Adım 5: Künye ve Üstveri (Metadata) Girişi<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5("🧭 Ekran Ekran Gönderim Adımları<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_ac433f9a("🚀 arXiv Adım Adım Yükleme Rehberi (Niem...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_85d251cd("ARXIV_YUKLEME_REHBERI.md")
+    arxiv_yukleme_rehberi_7_report_number_rapor_no_t_bff07f0a("7. Report Number (Rapor No / Tescil Kim...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_8_msc_class_matematik_s_n_e845dace("8. MSC-class (Matematik Sınıflandırma K...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654("1. Title (Makale Başlığı)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5("2. Authors (Yazarlar)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b("3. Primary Classification (Ana Kategori)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_c62e6365("4. Cross-Lists / Secondary Categories (...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_5_abstract_zet_metni_8089ac6c("5. Abstract (Özet Metni)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c("6. Comments (Yorum / Ek Bilgi)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_9_acm_class_bilgisayar_bil_f834692d("9. ACM-class (Bilgisayar Bilimleri Kodl...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_1_arxiv_giri_i_ve_g_n_b49a1e68("Adım 1: arXiv Girişi ve Gönderim Başlatma<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_2_lisans_ve_artlar_ve_8981fe85("Adım 2: Lisans ve Şartlar (Verify &amp; Lic...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e("Adım 3: Dosya Yükleme (Upload Files)<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_4_retilen_pdf_i_kontr_f3527941("Adım 4: Üretilen PDF'i Kontrol Etme (Vi...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_ad_m_6_nizleme_ve_son_onay_5d23ad70("Adım 6: Önizleme ve Son Onay (Review &amp;...<br/><small>ARXIV_YUKLEME_REHBERI.md</small>")
+    arxiv_yukleme_rehberi_85d251cd -->|contains| arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_ac433f9a
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_7_report_number_rapor_no_t_bff07f0a
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_8_msc_class_matematik_s_n_e845dace
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_9_acm_class_bilgisayar_bil_f834692d
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_c62e6365
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_5_abstract_zet_metni_8089ac6c
+    arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 -->|contains| arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c
+    arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_ac433f9a -->|contains| arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_6_nizleme_ve_son_onay_5d23ad70
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_1_arxiv_giri_i_ve_g_n_b49a1e68
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_2_lisans_ve_artlar_ve_8981fe85
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_4_retilen_pdf_i_kontr_f3527941
+    arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 -->|contains| arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5
+    %% Omitted for readability: 2 nodes, 0 edges
+    class arxiv_yukleme_rehberi_ad_m_5_k_nye_ve_stveri_met_67a269c5 concept;
+    class arxiv_yukleme_rehberi_ekran_ekran_g_nderim_ad_ml_0145cba5 concept;
+    class arxiv_yukleme_rehberi_arxiv_ad_m_ad_m_y_kleme_re_ac433f9a concept;
+    class arxiv_yukleme_rehberi_85d251cd concept;
+    class arxiv_yukleme_rehberi_7_report_number_rapor_no_t_bff07f0a concept;
+    class arxiv_yukleme_rehberi_8_msc_class_matematik_s_n_e845dace concept;
+    class arxiv_yukleme_rehberi_1_title_makale_ba_l_fd47f654 concept;
+    class arxiv_yukleme_rehberi_2_authors_yazarlar_7b62eae5 concept;
+    class arxiv_yukleme_rehberi_3_primary_classification_a_bc25314b concept;
+    class arxiv_yukleme_rehberi_4_cross_lists_secondary_ca_c62e6365 concept;
+    class arxiv_yukleme_rehberi_5_abstract_zet_metni_8089ac6c concept;
+    class arxiv_yukleme_rehberi_6_comments_yorum_ek_bilgi_e4de6c7c concept;
+    class arxiv_yukleme_rehberi_9_acm_class_bilgisayar_bil_f834692d concept;
+    class arxiv_yukleme_rehberi_ad_m_1_arxiv_giri_i_ve_g_n_b49a1e68 concept;
+    class arxiv_yukleme_rehberi_ad_m_2_lisans_ve_artlar_ve_8981fe85 concept;
+    class arxiv_yukleme_rehberi_ad_m_3_dosya_y_kleme_uploa_491e156e concept;
+    class arxiv_yukleme_rehberi_ad_m_4_retilen_pdf_i_kontr_f3527941 concept;
+    class arxiv_yukleme_rehberi_ad_m_6_nizleme_ve_son_onay_5d23ad70 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ARXIV_YUKLEME_REHBERI.md</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ARXIV_YUKLEME_REHBERI.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. Title (Makale Başlığı)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Title (Makale Başlığı).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. Authors (Yazarlar)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Authors (Yazarlar).</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>3. Primary Classification (Ana Kategori)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Primary Classification (Ana Kategori).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>4. Cross-Lists / Secondary Categories (Ek Kategoriler)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Cross-Lists / Secondary Categories (Ek Kategoriler).</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>5. Abstract (Özet Metni)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 5. Abstract (Özet Metni).</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>6. Comments (Yorum / Ek Bilgi)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 6. Comments (Yorum / Ek Bilgi).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>7. Report Number (Rapor No / Tescil Kimliği)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 7. Report Number (Rapor No / Tescil Kimliği).</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>8. MSC-class (Matematik Sınıflandırma Kodları)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 8. MSC-class (Matematik Sınıflandırma Kodları).</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>9. ACM-class (Bilgisayar Bilimleri Kodları)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 9. ACM-class (Bilgisayar Bilimleri Kodları).</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Adım 1: arXiv Girişi ve Gönderim Başlatma</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 1: arXiv Girişi ve Gönderim Başlatma.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>Adım 2: Lisans ve Şartlar (Verify &amp; License)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 2: Lisans ve Şartlar (Verify &amp; License).</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>Adım 3: Dosya Yükleme (Upload Files)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 3: Dosya Yükleme (Upload Files).</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>Adım 4: Üretilen PDF&#x27;i Kontrol Etme (View Paper)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 4: Üretilen PDF&#x27;i Kontrol Etme (View Paper).</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>Adım 5: Künye ve Üstveri (Metadata) Girişi</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 5: Künye ve Üstveri (Metadata) Girişi.</td>
+</tr>
+<tr>
+  <td>16</td>
+  <td><code>Adım 6: Önizleme ve Son Onay (Review &amp; Submit)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 6: Önizleme ve Son Onay (Review &amp; Submit).</td>
+</tr>
+<tr>
+  <td>17</td>
+  <td><code>🚀 arXiv Adım Adım Yükleme Rehberi (Niemeier $3A_8$ Umbral Moonshine)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 arXiv Adım Adım Yükleme Rehberi (Niemeier $3A_8$ Umbral Moonshine).</td>
+</tr>
+<tr>
+  <td>18</td>
+  <td><code>🧭 Ekran Ekran Gönderim Adımları</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧭 Ekran Ekran Gönderim Adımları.</td>
+</tr>
+<tr>
+  <td>19</td>
+  <td><code>📂 Gönderilecek Dosya ve Konumu</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📂 Gönderilecek Dosya ve Konumu.</td>
+</tr>
+<tr>
+  <td>20</td>
+  <td><code>⏱️ Gönderim Sonrası Takvim (arXiv Ne Zaman Yayına Alır?)</code><br><small style="color:var(--muted)">ARXIV_YUKLEME_REHBERI.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ⏱️ Gönderim Sonrası Takvim (arXiv Ne Zaman Yayına Alır?).</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>ARXIV_YUKLEME_REHBERI.md</code></td><td>20 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x19. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 5. 🚀 ZENODO & GITHUB DAĞITIM VE YAYIN KILAVUZU ====== -->
+<h2 id="zenodo-github-da-itim-ve-yayin-kilavuzu">5. 🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU</h2>
+<p>🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU groups implementation around github, zenodo, deployment, guidemd, mostly in ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md. This section covers 15 nodes and 14 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: 🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU (15 nodes, 14 edges)
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791("🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILA...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4("3. CERN Zenodo Yayını Oluşturma Adımlar...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_2_github_zeri_d422204d("2. GitHub Üzerinden Yapılacak İşlemler<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_4_twitter_x_v_47e6be87("4. Twitter/X ve LinkedIn Duyuru Taslağı<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_dd852a4a("GITHUB DEPLOYMENT GUIDE.md<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_1_yeni_g_da3e58ee("Adım 1: Yeni GitHub Deposu Oluşturma<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_1_openai_repo_81185797("1. OpenAI Reposuna Dair Kritik Gerçek:...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_1_zenodo_34fa087c("Adım 1: Zenodo'ya Giriş<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_2_dosyal_a45298b7("Adım 2: Dosyaları Sürükle-Bırak ile Yük...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_2_dosyal_ec3dd422("Adım 2: Dosyaları Yükleme (Push)<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_3_form_b_39597385("Adım 3: Form Bilgilerini Onaylama (Otom...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_ad_m_4_publis_ad922621("Adım 4: 'Publish' Butonuna Basarak DOI'...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_linkedin_duyu_6de562da("LinkedIn Duyuru Metni:<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_niemeier_kafe_e081d75f("Niemeier Kafesi $A_8^3$, K3 Hodge Duali...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_twitter_x_duy_55acec1f("Twitter / X Duyuru Metni (İngilizce - B...<br/><small>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small>")
+    zenodo_and_github_deployment_guide_dd852a4a -->|contains| zenodo_and_github_deployment_guide_zenodo_github_a6935791
+    zenodo_and_github_deployment_guide_2_github_zeri_d422204d -->|contains| zenodo_and_github_deployment_guide_ad_m_1_yeni_g_da3e58ee
+    zenodo_and_github_deployment_guide_2_github_zeri_d422204d -->|contains| zenodo_and_github_deployment_guide_ad_m_2_dosyal_ec3dd422
+    zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4 -->|contains| zenodo_and_github_deployment_guide_ad_m_1_zenodo_34fa087c
+    zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4 -->|contains| zenodo_and_github_deployment_guide_ad_m_2_dosyal_a45298b7
+    zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4 -->|contains| zenodo_and_github_deployment_guide_ad_m_3_form_b_39597385
+    zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4 -->|contains| zenodo_and_github_deployment_guide_ad_m_4_publis_ad922621
+    zenodo_and_github_deployment_guide_4_twitter_x_v_47e6be87 -->|contains| zenodo_and_github_deployment_guide_linkedin_duyu_6de562da
+    zenodo_and_github_deployment_guide_4_twitter_x_v_47e6be87 -->|contains| zenodo_and_github_deployment_guide_twitter_x_duy_55acec1f
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791 -->|contains| zenodo_and_github_deployment_guide_1_openai_repo_81185797
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791 -->|contains| zenodo_and_github_deployment_guide_niemeier_kafe_e081d75f
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791 -->|contains| zenodo_and_github_deployment_guide_2_github_zeri_d422204d
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791 -->|contains| zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4
+    zenodo_and_github_deployment_guide_zenodo_github_a6935791 -->|contains| zenodo_and_github_deployment_guide_4_twitter_x_v_47e6be87
+    class zenodo_and_github_deployment_guide_zenodo_github_a6935791 concept;
+    class zenodo_and_github_deployment_guide_3_cern_zenodo_e43667d4 concept;
+    class zenodo_and_github_deployment_guide_2_github_zeri_d422204d concept;
+    class zenodo_and_github_deployment_guide_4_twitter_x_v_47e6be87 concept;
+    class zenodo_and_github_deployment_guide_dd852a4a concept;
+    class zenodo_and_github_deployment_guide_ad_m_1_yeni_g_da3e58ee concept;
+    class zenodo_and_github_deployment_guide_1_openai_repo_81185797 concept;
+    class zenodo_and_github_deployment_guide_ad_m_1_zenodo_34fa087c concept;
+    class zenodo_and_github_deployment_guide_ad_m_2_dosyal_a45298b7 concept;
+    class zenodo_and_github_deployment_guide_ad_m_2_dosyal_ec3dd422 concept;
+    class zenodo_and_github_deployment_guide_ad_m_3_form_b_39597385 concept;
+    class zenodo_and_github_deployment_guide_ad_m_4_publis_ad922621 concept;
+    class zenodo_and_github_deployment_guide_linkedin_duyu_6de562da concept;
+    class zenodo_and_github_deployment_guide_niemeier_kafe_e081d75f concept;
+    class zenodo_and_github_deployment_guide_twitter_x_duy_55acec1f concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. OpenAI Reposuna Dair Kritik Gerçek: Neden PR Atılamaz?</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. OpenAI Reposuna Dair Kritik Gerçek: Neden PR Atılamaz?.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. GitHub Üzerinden Yapılacak İşlemler</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. GitHub Üzerinden Yapılacak İşlemler.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>3. CERN Zenodo Yayını Oluşturma Adımları (Eksiksiz)</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. CERN Zenodo Yayını Oluşturma Adımları (Eksiksiz).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>4. Twitter/X ve LinkedIn Duyuru Taslağı</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Twitter/X ve LinkedIn Duyuru Taslağı.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>Adım 1: Yeni GitHub Deposu Oluşturma</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 1: Yeni GitHub Deposu Oluşturma.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>Adım 1: Zenodo&#x27;ya Giriş</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 1: Zenodo&#x27;ya Giriş.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>Adım 2: Dosyaları Sürükle-Bırak ile Yükleme</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 2: Dosyaları Sürükle-Bırak ile Yükleme.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>Adım 2: Dosyaları Yükleme (Push)</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 2: Dosyaları Yükleme (Push).</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>Adım 3: Form Bilgilerini Onaylama (Otomatik JSON&#x27;dan)</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 3: Form Bilgilerini Onaylama (Otomatik JSON&#x27;dan).</td>
+</tr>
+<tr>
+  <td>11</td>
+  <td><code>Adım 4: &quot;Publish&quot; Butonuna Basarak DOI&#x27;yi Mühürleme</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Adım 4: &quot;Publish&quot; Butonuna Basarak DOI&#x27;yi Mühürleme.</td>
+</tr>
+<tr>
+  <td>12</td>
+  <td><code>LinkedIn Duyuru Metni:</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing LinkedIn Duyuru Metni:.</td>
+</tr>
+<tr>
+  <td>13</td>
+  <td><code>Niemeier Kafesi $A_8^3$, K3 Hodge Dualitesi &amp; Umbral Moonshine</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Niemeier Kafesi $A_8^3$, K3 Hodge Dualitesi &amp; Umbral Moonshine.</td>
+</tr>
+<tr>
+  <td>14</td>
+  <td><code>Twitter / X Duyuru Metni (İngilizce - Bilimsel &amp; Vurucu):</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Twitter / X Duyuru Metni (İngilizce - Bilimsel &amp; Vurucu):.</td>
+</tr>
+<tr>
+  <td>15</td>
+  <td><code>🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU</code><br><small style="color:var(--muted)">ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 ZENODO &amp; GITHUB DAĞITIM VE YAYIN KILAVUZU.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>ZENODO_AND_GITHUB_DEPLOYMENT_GUIDE.md</code></td><td>15 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x14. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 6. Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine ====== -->
+<h2 id="machine-certified-formalization-of-the-24-dimens">6. Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine</h2>
+<p>Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine groups implementation around readme, 2026, pre, standardizationmd, mostly in _archive/readme_history/README_2026_11_05_pre_standardization.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine (10 nodes, 9 edges)
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e("Machine-Certified Formalization of the...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2("05 pre standardization.md<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_1f84fbde("📜 Permanent Citation<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_34bc6fd4("👥 Authors &amp; Infrastructure Acknowledgments<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_ddfba8a9("🏛️ Companion Open-Science Formal Archit...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_e4da3f7a("⚖️ License &amp; Mathematical Community Com...<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_073c50a9("🏛️ Executive Summary<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_664b53f4("🔬 Mathematical Invariants Verified<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_cd316f13("🚀 Repository Structure<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_7e4c9f82("🧪 Running the Verification Oracle<br/><small>_archive/readme_history/README_2026_11_05_pre_standardization.md</small>")
+    archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2 -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_e531901e
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_1f84fbde
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_34bc6fd4
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_ddfba8a9
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_e4da3f7a
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_073c50a9
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_664b53f4
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_cd316f13
+    archive_readme_history_readme_2026_11_05_pre_sta_e531901e -->|contains| archive_readme_history_readme_2026_11_05_pre_sta_7e4c9f82
+    class archive_readme_history_readme_2026_11_05_pre_sta_e531901e concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_87ec15e2 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_1f84fbde concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_34bc6fd4 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_ddfba8a9 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_e4da3f7a concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_073c50a9 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_664b53f4 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_cd316f13 concept;
+    class archive_readme_history_readme_2026_11_05_pre_sta_7e4c9f82 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>README_2026_11_05_pre_standardization.md</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing README_2026_11_05_pre_standardization.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>👥 Authors &amp; Infrastructure Acknowledgments</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 👥 Authors &amp; Infrastructure Acknowledgments.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>🏛️ Companion Open-Science Formal Architecture</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Companion Open-Science Formal Architecture.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>🏛️ Executive Summary</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🏛️ Executive Summary.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>⚖️ License &amp; Mathematical Community Compatibility</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing ⚖️ License &amp; Mathematical Community Compatibility.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing Machine-Certified Formalization of the 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality and Umbral Moonshine.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>🔬 Mathematical Invariants Verified</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🔬 Mathematical Invariants Verified.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>📜 Permanent Citation</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 📜 Permanent Citation.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>🚀 Repository Structure</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🚀 Repository Structure.</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>🧪 Running the Verification Oracle</code><br><small style="color:var(--muted)">_archive/readme_history/README_2026_11_05_pre_standardization.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧪 Running the Verification Oracle.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>_archive/readme_history/README_2026_11_05_pre_standardization.md</code></td><td>10 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x9. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 7. The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality & Umbral Moonshine Formalization ====== -->
+<h2 id="the-24-dimensional-niemeier-lattice-a-8-3-k3-hod">7. The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization</h2>
+<p>The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization groups implementation around twitter, thread, niemeiermd, 280, mostly in TWITTER_THREAD_NIEMEIER.md. This section covers 10 nodes and 9 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization (10 nodes, 9 edges)
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69("The 24-Dimensional Niemeier Lattice $A_...<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_c4ddf2de("TWITTER_THREAD_NIEMEIER.md")
+    twitter_thread_niemeier_official_6_part_twitter_6969d2d5("🐦 OFFICIAL 6-PART TWITTER / X ANNOUNCEM...<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_1_6_270_280_chars_cfbde0d5("🧵 Tweet 1/6 (270 / 280 chars) — [Attach...<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_100_free_x_tier_optimize_0547620b("100% Free X Tier Optimized (Strictly &lt;=...<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_2_6_235_280_chars_f4ed405d("🧵 Tweet 2/6 (235 / 280 chars)<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_3_6_257_280_chars_f0e9eacb("🧵 Tweet 3/6 (257 / 280 chars)<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_4_6_260_280_chars_d9002f23("🧵 Tweet 4/6 (260 / 280 chars)<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_5_6_254_280_chars_1edf6782("🧵 Tweet 5/6 (254 / 280 chars)<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_tweet_6_6_234_280_chars_377e8961("🧵 Tweet 6/6 (234 / 280 chars)<br/><small>TWITTER_THREAD_NIEMEIER.md</small>")
+    twitter_thread_niemeier_c4ddf2de -->|contains| twitter_thread_niemeier_official_6_part_twitter_6969d2d5
+    twitter_thread_niemeier_official_6_part_twitter_6969d2d5 -->|contains| twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_1_6_270_280_chars_cfbde0d5
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_100_free_x_tier_optimize_0547620b
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_2_6_235_280_chars_f4ed405d
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_3_6_257_280_chars_f0e9eacb
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_4_6_260_280_chars_d9002f23
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_5_6_254_280_chars_1edf6782
+    twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 -->|contains| twitter_thread_niemeier_tweet_6_6_234_280_chars_377e8961
+    class twitter_thread_niemeier_the_24_dimensional_nieme_cf44ec69 concept;
+    class twitter_thread_niemeier_c4ddf2de concept;
+    class twitter_thread_niemeier_official_6_part_twitter_6969d2d5 concept;
+    class twitter_thread_niemeier_tweet_1_6_270_280_chars_cfbde0d5 concept;
+    class twitter_thread_niemeier_100_free_x_tier_optimize_0547620b concept;
+    class twitter_thread_niemeier_tweet_2_6_235_280_chars_f4ed405d concept;
+    class twitter_thread_niemeier_tweet_3_6_257_280_chars_f0e9eacb concept;
+    class twitter_thread_niemeier_tweet_4_6_260_280_chars_d9002f23 concept;
+    class twitter_thread_niemeier_tweet_5_6_254_280_chars_1edf6782 concept;
+    class twitter_thread_niemeier_tweet_6_6_234_280_chars_377e8961 concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>TWITTER_THREAD_NIEMEIER.md</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing TWITTER_THREAD_NIEMEIER.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>100% Free X Tier Optimized (Strictly &lt;= 280 Characters per Tweet)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 100% Free X Tier Optimized (Strictly &lt;= 280 Characters per Tweet).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>🐦 OFFICIAL 6-PART TWITTER / X ANNOUNCEMENT THREAD</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🐦 OFFICIAL 6-PART TWITTER / X ANNOUNCEMENT THREAD.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing The 24-Dimensional Niemeier Lattice $A_8^3$, K3 Hodge Duality &amp; Umbral Moonshine Formalization.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>🧵 Tweet 1/6 (270 / 280 chars) — [Attach Image: `niemeier_k3_twitter_card.jpg`]</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 1/6 (270 / 280 chars) — [Attach Image: `niemeier_k3_twitter_card.jpg`].</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>🧵 Tweet 2/6 (235 / 280 chars)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 2/6 (235 / 280 chars).</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>🧵 Tweet 3/6 (257 / 280 chars)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 3/6 (257 / 280 chars).</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>🧵 Tweet 4/6 (260 / 280 chars)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 4/6 (260 / 280 chars).</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>🧵 Tweet 5/6 (254 / 280 chars)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 5/6 (254 / 280 chars).</td>
+</tr>
+<tr>
+  <td>10</td>
+  <td><code>🧵 Tweet 6/6 (234 / 280 chars)</code><br><small style="color:var(--muted)">TWITTER_THREAD_NIEMEIER.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 🧵 Tweet 6/6 (234 / 280 chars).</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>TWITTER_THREAD_NIEMEIER.md</code></td><td>10 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x9. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 8. 2. Mathematical Architecture ====== -->
+<h2 id="2-mathematical-architecture">8. 2. Mathematical Architecture</h2>
+<p>2. Mathematical Architecture groups implementation around umbral, moonshine, niemeier, monographmd, mostly in NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md. This section covers 9 nodes and 8 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: 2. Mathematical Architecture (9 nodes, 8 edges)
+    niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3("2. Mathematical Architecture<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add("💎 WERR MONOGRAPH: NIEMEIER LATTICE $A_8...<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_fdc624eb("UMBRAL MOONSHINE MONOGRAPH.md<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_a_the_95d4dd63("A. The $A_8^3$ Root Sublattice<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_b_glue_5a66632c("B. Glue Code and Unimodularity<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_c_k3_s_4a8e4084("C. K3 Surface Geometry and Singularity...<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_1_exec_6b07a011("1. Executive Summary &amp; Strategic Context<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_3_veri_edb1809c("3. Verification Artifacts &amp; Infrastructure<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_d_umbr_aafd2d3d("D. Umbral Moonshine Lambency $\ell = 9$<br/><small>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small>")
+    niemeier_a8_k3_umbral_moonshine_monograph_fdc624eb -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add
+    niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3 -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_a_the_95d4dd63
+    niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3 -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_b_glue_5a66632c
+    niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3 -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_c_k3_s_4a8e4084
+    niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3 -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_d_umbr_aafd2d3d
+    niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_1_exec_6b07a011
+    niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3
+    niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add -->|contains| niemeier_a8_k3_umbral_moonshine_monograph_3_veri_edb1809c
+    class niemeier_a8_k3_umbral_moonshine_monograph_2_math_94fd6fc3 concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_werr_m_83073add concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_fdc624eb concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_a_the_95d4dd63 concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_b_glue_5a66632c concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_c_k3_s_4a8e4084 concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_1_exec_6b07a011 concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_3_veri_edb1809c concept;
+    class niemeier_a8_k3_umbral_moonshine_monograph_d_umbr_aafd2d3d concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. Executive Summary &amp; Strategic Context</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Executive Summary &amp; Strategic Context.</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. Mathematical Architecture</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Mathematical Architecture.</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>3. Verification Artifacts &amp; Infrastructure</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Verification Artifacts &amp; Infrastructure.</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>A. The $A_8^3$ Root Sublattice</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing A. The $A_8^3$ Root Sublattice.</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>B. Glue Code and Unimodularity</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing B. Glue Code and Unimodularity.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>C. K3 Surface Geometry and Singularity Resolution</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing C. K3 Surface Geometry and Singularity Resolution.</td>
+</tr>
+<tr>
+  <td>8</td>
+  <td><code>D. Umbral Moonshine Lambency $\ell = 9$</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing D. Umbral Moonshine Lambency $\ell = 9$.</td>
+</tr>
+<tr>
+  <td>9</td>
+  <td><code>💎 WERR MONOGRAPH: NIEMEIER LATTICE $A_8^3$, K3 SURFACE HODGE DUALITY &amp; UMBRAL MOONSHINE</code><br><small style="color:var(--muted)">NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 💎 WERR MONOGRAPH: NIEMEIER LATTICE $A_8^3$, K3 SURFACE HODGE DUALITY &amp; UMBRAL MOONSHINE.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>NIEMEIER_A8_K3_UMBRAL_MOONSHINE_MONOGRAPH.md</code></td><td>9 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x8. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<!-- ====== 9. VolkanBridge & Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization ====== -->
+<h2 id="volkanbridge-multi-layer-algebraic-sieve-synthes">9. VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization</h2>
+<p>VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization groups implementation around sieve, algebraic, werr, multilayer, mostly in docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md. This section covers 7 nodes and 6 internal edges; the diagram shows only representative relationships to stay readable.</p>
+
+<div class="mermaid">
+%%{init: {"theme": "dark", "themeVariables": {"fontSize": "15.0px", "fontFamily": "Segoe UI, system-ui, sans-serif", "primaryColor": "#1e293b", "primaryTextColor": "#e2e8f0", "primaryBorderColor": "#38bdf8", "secondaryColor": "#0f172a", "tertiaryColor": "#334155", "lineColor": "#64748b", "textColor": "#e2e8f0"}, "flowchart": {"htmlLabels": true, "curve": "basis", "nodeSpacing": 48, "rankSpacing": 64, "padding": 14, "diagramPadding": 10, "useMaxWidth": true}}}%%
+flowchart LR
+    %% Section: VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization (7 nodes, 6 edges)
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f("VolkanBridge &amp; Multi-Layer Algebraic Si...<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_e88568fc("ALGEBRAIC SIEVE SYNTHESIS.md<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_1_c9f3dab3("1. Architectural Lineage &amp; Attribution...<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_2_e1fed5bb("2. Part 1: 5-Level Pre-Sieve Ablation o...<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_3_07eb4aa1("3. Part 2: 10/10 Multi-Regime Semiprime...<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_4_f5f740e2("4. Scope &amp; Scientific Honesty Note (Con...<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_5_089ebb0b("5. Reproducibility<br/><small>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small>")
+    docs_werr_multilayer_algebraic_sieve_synthesis_e88568fc -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_1_c9f3dab3
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_2_e1fed5bb
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_3_07eb4aa1
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_4_f5f740e2
+    docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f -->|contains| docs_werr_multilayer_algebraic_sieve_synthesis_5_089ebb0b
+    class docs_werr_multilayer_algebraic_sieve_synthesis_v_c131043f concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_e88568fc concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_1_c9f3dab3 concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_2_e1fed5bb concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_3_07eb4aa1 concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_4_f5f740e2 concept;
+    class docs_werr_multilayer_algebraic_sieve_synthesis_5_089ebb0b concept;
+    classDef entry fill:#422006,stroke:#fbbf24,color:#fde68a,stroke-width:1px;
+    classDef api fill:#450a0a,stroke:#f87171,color:#fee2e2,stroke-width:1px;
+    classDef async fill:#2e1065,stroke:#a78bfa,color:#ede9fe,stroke-width:1px;
+    classDef klass fill:#064e3b,stroke:#34d399,color:#d1fae5,stroke-width:1px;
+    classDef ui fill:#831843,stroke:#f472b6,color:#fce7f3,stroke-width:1px;
+    classDef module fill:#172554,stroke:#60a5fa,color:#dbeafe,stroke-width:1px;
+    classDef test fill:#3f3f46,stroke:#a1a1aa,color:#f4f4f5,stroke-width:1px;
+    classDef concept fill:#292524,stroke:#a8a29e,color:#fafaf9,stroke-dasharray:4 3;
+    classDef function fill:#0f172a,stroke:#38bdf8,color:#e0f2fe,stroke-width:1px;
+</div>
+
+<h3>Call Details</h3>
+<table class="call-table">
+<tr>
+  <th style="width:5%">#</th>
+  <th style="width:28%">Node</th>
+  <th style="width:10%">Type</th>
+  <th style="width:17%">Caller</th>
+  <th style="width:20%">Callees</th>
+  <th style="width:20%">Description</th>
+</tr>
+<tr>
+  <td>1</td>
+  <td><code>WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md.</td>
+</tr>
+<tr>
+  <td>2</td>
+  <td><code>1. Architectural Lineage &amp; Attribution (*&quot;Architectural Lineage &amp; Attribution&quot;*)</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 1. Architectural Lineage &amp; Attribution (*&quot;Architectural Lineage &amp; Attribution&quot;*).</td>
+</tr>
+<tr>
+  <td>3</td>
+  <td><code>2. Part 1: 5-Level Pre-Sieve Ablation on an 895-Bit RSA-270 Window ($10^7$ Candidates)</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 2. Part 1: 5-Level Pre-Sieve Ablation on an 895-Bit RSA-270 Window ($10^7$ Candidates).</td>
+</tr>
+<tr>
+  <td>4</td>
+  <td><code>3. Part 2: 10/10 Multi-Regime Semiprime Factorization Benchmark (40-Bit to 257-Bit)</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 3. Part 2: 10/10 Multi-Regime Semiprime Factorization Benchmark (40-Bit to 257-Bit).</td>
+</tr>
+<tr>
+  <td>5</td>
+  <td><code>4. Scope &amp; Scientific Honesty Note (Constant-Factor Pre-Sieving vs. Asymptotic GNFS)</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 4. Scope &amp; Scientific Honesty Note (Constant-Factor Pre-Sieving vs. Asymptotic GNFS).</td>
+</tr>
+<tr>
+  <td>6</td>
+  <td><code>5. Reproducibility</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing 5. Reproducibility.</td>
+</tr>
+<tr>
+  <td>7</td>
+  <td><code>VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization</code><br><small style="color:var(--muted)">docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</small></td>
+  <td><span class="tag tag-func">Concept</span></td>
+  <td>External entry / no inbound edge</td>
+  <td>No direct outbound edge</td>
+  <td>Documentation node describing VolkanBridge &amp; Multi-Layer Algebraic Sieve Synthesis: From GDT v3.0 ($5.85\times$) to 14-Modulus Quadratic Residue Super-Wheel ($161,352\times$) and 10/10 Semiprime Factorization.</td>
+</tr>
+</table>
+
+<div class="grid">
+  <div class="card">
+    <h4>Key Files</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><th>File</th><th>Coverage</th></tr>
+      <tr><td><code>docs/WERR_MULTILAYER_ALGEBRAIC_SIEVE_SYNTHESIS.md</code></td><td>7 nodes</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Design Notes</h4>
+    <p>This section comes from graphify community clustering. Relationship summary: contains x6. The diagram prioritizes high-confidence calls or usage relationships; the table keeps the broader node inventory.</p>
+  </div>
+</div>
+<hr>
+
+<h2 id="stats">Project Statistics</h2>
+
+<div class="grid">
+  <div class="card">
+    <h4>Graph</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>Nodes</td><td>146</td></tr>
+      <tr><td>Edges</td><td>167</td></tr>
+      <tr><td>Hyperedges</td><td>0</td></tr>
+      <tr><td>Communities</td><td>10</td></tr>
+      <tr><td>Documented Sections</td><td>8</td></tr>
+    </table>
+  </div>
+  <div class="card">
+    <h4>Edge Confidence</h4>
+    <table style="width:100%;font-size:0.85rem;">
+      <tr><td>EXTRACTED</td><td>166</td></tr>
+      <tr><td>INFERRED</td><td>1</td></tr>
+      <tr><td>AMBIGUOUS</td><td>0</td></tr>
+    </table>
+  </div>
+</div>
+
+<div style="text-align:center; padding:40px 0; color: var(--muted); font-size:0.9rem;">
+  <p>niemeier-a8-umbral-moonshine — Architecture Documentation</p>
+  <p>Generated: 2026-11-25 00:16 UTC · graphify callflow-html</p>
+</div>
+
+</div><!-- .container -->
+
+<script>
+(function () {
+  const mermaidConfig = {
+    startOnLoad: false,
+    theme: 'dark',
+    securityLevel: 'loose',
+    flowchart: { htmlLabels: true, useMaxWidth: true },
+    themeVariables: {
+      primaryColor: '#1e293b',
+      primaryTextColor: '#e2e8f0',
+      primaryBorderColor: '#38bdf8',
+      secondaryColor: '#0f172a',
+      tertiaryColor: '#334155',
+      lineColor: '#64748b',
+      textColor: '#e2e8f0',
+    }
+  };
+
+  mermaid.initialize(mermaidConfig);
+
+  function clamp(value, min, max) {
+    return Math.min(max, Math.max(min, value));
+  }
+
+  function enhanceMermaidDiagrams() {
+    document.querySelectorAll('.mermaid').forEach((container) => {
+      if (container.dataset.zoomReady === 'true') return;
+      const svg = container.querySelector('svg');
+      if (!svg) return;
+
+      container.dataset.zoomReady = 'true';
+      container.classList.add('is-enhanced');
+
+      const viewport = document.createElement('div');
+      viewport.className = 'mermaid-viewport';
+      svg.parentNode.insertBefore(viewport, svg);
+      viewport.appendChild(svg);
+
+      const toolbar = document.createElement('div');
+      toolbar.className = 'mermaid-toolbar';
+      toolbar.innerHTML = [
+        '<button type="button" data-action="zoom-out" title="Zoom out">-</button>',
+        '<span class="zoom-level" data-role="level">100%</span>',
+        '<button type="button" data-action="zoom-in" title="Zoom in">+</button>',
+        '<button type="button" data-action="fit" title="Fit width">Fit</button>',
+        '<button type="button" data-action="reset" title="Reset view">Reset</button>'
+      ].join('');
+      container.insertBefore(toolbar, viewport);
+
+      const state = { scale: 1, x: 0, y: 0, dragging: false, startX: 0, startY: 0, originX: 0, originY: 0 };
+      const level = toolbar.querySelector('[data-role="level"]');
+
+      function applyTransform() {
+        svg.style.transform = `translate(${state.x}px, ${state.y}px) scale(${state.scale})`;
+        level.textContent = `${Math.round(state.scale * 100)}%`;
+      }
+
+      function zoomBy(delta) {
+        state.scale = clamp(state.scale + delta, 0.25, 3);
+        applyTransform();
+      }
+
+      function reset() {
+        state.scale = 1;
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      function fitWidth() {
+        const rawWidth = svg.viewBox && svg.viewBox.baseVal && svg.viewBox.baseVal.width
+          ? svg.viewBox.baseVal.width
+          : svg.getBoundingClientRect().width / state.scale;
+        if (!rawWidth) {
+          reset();
+          return;
+        }
+        state.scale = clamp((viewport.clientWidth - 48) / rawWidth, 0.25, 1.4);
+        state.x = 0;
+        state.y = 0;
+        applyTransform();
+      }
+
+      toolbar.addEventListener('click', (event) => {
+        const button = event.target.closest('button[data-action]');
+        if (!button) return;
+        const action = button.dataset.action;
+        if (action === 'zoom-in') zoomBy(0.15);
+        if (action === 'zoom-out') zoomBy(-0.15);
+        if (action === 'fit') fitWidth();
+        if (action === 'reset') reset();
+      });
+
+      viewport.addEventListener('wheel', (event) => {
+        if (!event.ctrlKey && !event.metaKey) return;
+        event.preventDefault();
+        zoomBy(event.deltaY < 0 ? 0.1 : -0.1);
+      }, { passive: false });
+
+      viewport.addEventListener('pointerdown', (event) => {
+        if (event.button !== 0) return;
+        state.dragging = true;
+        state.startX = event.clientX;
+        state.startY = event.clientY;
+        state.originX = state.x;
+        state.originY = state.y;
+        viewport.classList.add('is-dragging');
+        viewport.setPointerCapture(event.pointerId);
+      });
+
+      viewport.addEventListener('pointermove', (event) => {
+        if (!state.dragging) return;
+        state.x = state.originX + event.clientX - state.startX;
+        state.y = state.originY + event.clientY - state.startY;
+        applyTransform();
+      });
+
+      function endDrag(event) {
+        if (!state.dragging) return;
+        state.dragging = false;
+        viewport.classList.remove('is-dragging');
+        if (viewport.hasPointerCapture(event.pointerId)) {
+          viewport.releasePointerCapture(event.pointerId);
+        }
+      }
+
+      viewport.addEventListener('pointerup', endDrag);
+      viewport.addEventListener('pointercancel', endDrag);
+      applyTransform();
+    });
+  }
+
+  function renderMermaid() {
+    const result = mermaid.run
+      ? mermaid.run({ querySelector: '.mermaid' })
+      : Promise.resolve();
+    Promise.resolve(result)
+      .then(enhanceMermaidDiagrams)
+      .catch((error) => {
+        console.error('Mermaid render failed:', error);
+        enhanceMermaidDiagrams();
+      });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', renderMermaid);
+  } else {
+    renderMermaid();
+  }
+})();
+</script>
+
+</body>
+</html>
